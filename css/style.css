@@ -1,0 +1,32 @@
+/* styles.css */
+
+/* Background color from the design */
+.bg-dark-blue {
+  background-color: #002c6f;
+}
+
+/* Simulated bar chart */
+.chart-bar {
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+  height: 80px;
+}
+
+.bar {
+  width: 12px;
+  background-color: #00e0ff;
+  border-radius: 4px;
+}
+
+.bar-1 { height: 30px; }
+.bar-2 { height: 50px; background-color: #00c2ff; }
+.bar-3 { height: 70px; background-color: #00aaff; }
+.bar-4 { height: 40px; background-color: #008cff; }
+
+.login-box {
+  max-width: 400px;
+  width: 100%;
+}
+
+
