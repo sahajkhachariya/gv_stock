@@ -10,45 +10,27 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
-  <!-- Embedded Custom CSS -->
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
       background-color: #ffffff;
       color: #333;
     }
-
-    .text-navy {
-      color: #002c6f;
-    }
-
+    .text-navy { color: #002c6f; }
     .custom-primary {
       background-color: #002c6f !important;
       color: white !important;
       border: none;
     }
-
-    .custom-primary:hover {
-      background-color: #001e4f !important;
-    }
-
+    .custom-primary:hover { background-color: #001e4f !important; }
     .table thead th {
       background-color: #002c6f !important;
       color: white;
       vertical-align: middle;
     }
-
-    .table td {
-      vertical-align: middle;
-    }
-
-    .table .btn i {
-      margin-right: 4px;
-    }
-
-    h3 {
-      font-weight: 600;
-    }
+    .table td { vertical-align: middle; }
+    .table .btn i { margin-right: 4px; }
+    h3 { font-weight: 600; }
   </style>
 </head>
 <body class="bg-white">
@@ -62,8 +44,8 @@
           <i class="fa-solid fa-plus"></i> Add Product
         </button>
         <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">Add New Product</a></li>
-          <li><a class="dropdown-item" href="#">Add to Existing Product</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addNewProductModal">Add New Product</a></li>
+          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addToExistingProductModal">Add to Existing Product</a></li>
         </ul>
       </div>
     </div>
@@ -73,11 +55,11 @@
       <table class="table table-bordered table-hover text-center align-middle">
         <thead>
           <tr>
-            <th scope="col">Sr No</th>
-            <th scope="col">Product Name</th>
-            <th scope="col">Price (₹)</th>
-            <th scope="col">Quantity</th>
-            <th scope="col">Actions</th>
+            <th>Sr No</th>
+            <th>Product Name</th>
+            <th>Price (₹)</th>
+            <th>Quantity</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -87,12 +69,8 @@
             <td>499</td>
             <td>120</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1">
-                <i class="fa-solid fa-pen"></i> Edit
-              </button>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash"></i> Delete
-              </button>
+              <button class="btn btn-sm btn-outline-primary me-1"><i class="fa-solid fa-pen"></i> Edit</button>
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i> Delete</button>
             </td>
           </tr>
           <tr>
@@ -101,12 +79,8 @@
             <td>699</td>
             <td>80</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1">
-                <i class="fa-solid fa-pen"></i> Edit
-              </button>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash"></i> Delete
-              </button>
+              <button class="btn btn-sm btn-outline-primary me-1"><i class="fa-solid fa-pen"></i> Edit</button>
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i> Delete</button>
             </td>
           </tr>
           <tr>
@@ -115,16 +89,73 @@
             <td>199</td>
             <td>200</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-1">
-                <i class="fa-solid fa-pen"></i> Edit
-              </button>
-              <button class="btn btn-sm btn-outline-danger">
-                <i class="fa-solid fa-trash"></i> Delete
-              </button>
+              <button class="btn btn-sm btn-outline-primary me-1"><i class="fa-solid fa-pen"></i> Edit</button>
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i> Delete</button>
             </td>
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+
+  <!-- Modal: Add New Product -->
+  <div class="modal fade" id="addNewProductModal" tabindex="-1" aria-labelledby="addNewProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" method="POST" action="add_new_product.php">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addNewProductModalLabel">Add New Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="product_name" class="form-label">Product Name</label>
+            <input type="text" name="product_name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label for="price" class="form-label">Price (₹)</label>
+            <input type="number" name="price" class="form-control" required min="0">
+          </div>
+          <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <input type="number" name="quantity" class="form-control" required min="1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn custom-primary">Add Product</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add to Existing Product -->
+  <div class="modal fade" id="addToExistingProductModal" tabindex="-1" aria-labelledby="addToExistingProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form class="modal-content" method="POST" action="add_existing_product.php">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addToExistingProductModalLabel">Add to Existing Product</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="product_id" class="form-label">Select Product</label>
+            <select name="product_id" class="form-select" required>
+              <option value="1">Wireless Mouse</option>
+              <option value="2">USB Keyboard</option>
+              <option value="3">HDMI Cable</option>
+              <!-- Ideally load dynamically from DB -->
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="add_quantity" class="form-label">Quantity to Add</label>
+            <input type="number" name="add_quantity" class="form-control" required min="1">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn custom-primary">Update Stock</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </div>
+      </form>
     </div>
   </div>
 
