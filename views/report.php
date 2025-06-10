@@ -1,3 +1,117 @@
+<style>
+  body {
+    background-color: #f5f9ff; /* soft white-blue background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+    padding: 20px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  .container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+  }
+
+  h3 {
+    color: #004aad; /* deep blue heading */
+    font-weight: bold;
+  }
+
+  .row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .row .col-auto {
+    margin: 5px 10px;
+  }
+
+  label {
+    font-weight: 500;
+    color: #004aad;
+  }
+
+  input[type="date"] {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  button.btn-primary {
+    background-color: #004aad;
+    border-color: #004aad;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button.btn-primary:hover {
+    background-color: #003a8c;
+  }
+
+  #reportSummary {
+    text-align: left;
+    margin: 20px auto;
+    background-color: #f1f6ff;
+    border: 1px solid #d0e4ff;
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  #reportSummary h5 {
+    color: #004aad;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+
+  #reportSummary p {
+    font-size: 15px;
+    margin: 8px 0;
+  }
+
+  #salesList {
+    margin-top: 20px;
+    text-align: left;
+  }
+
+  #salesList table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+
+  #salesList th, #salesList td {
+    border: 1px solid #cce0ff;
+    padding: 8px;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  #salesList th {
+    background-color: #004aad;
+    color: white;
+  }
+
+  #salesList tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+</style>
+
 <?php include '../config/db.php'; ?>
 
 <div class="container mt-5">
