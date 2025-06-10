@@ -1,0 +1,346 @@
+<?php
+session_start();
+if (!isset($_SESSION['admin_logged_in'])) {
+    header("Location: login.php");
+    exit();
+}
+?>
+
+<?php
+require_once '../config/db.php';
+require_once '../models/Product.php';
+
+$db = new DB();
+$conn = $db->connect();
+
+$product = new Product($conn);
+$products = $product->getAllProducts();
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventory Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body { margin: 0; padding: 0; }
+    .bg-dark-blue { background-color: #002c6f; }
+
+    .sidebar {
+      width: 240px;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: -240px;
+      z-index: 1050;
+      background-color: #002c6f;
+      transition: left 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .sidebar.active { left: 0; }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index:1040;
+    }
+
+    .overlay.active { display: block; }
+
+    .main-content {
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+      padding: 1rem;
+    }
+
+    .table-row-alt { background-color: #f1f1f1; }
+
+    .hamburger {
+      width: 30px;
+      height: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .hamburger span {
+      display: block;
+      height: 4px;
+      background-color: #002c6f;
+      border-radius: 2px;
+    }
+
+    .menu-btn:hover { color: #0149a3; }
+
+    .nav-link { font-size: 1rem; }
+    .nav-link i { width: 20px; }
+
+    @media (min-width: 768px) {
+      .main-content { padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div id="sidebar" class="sidebar">
+  <h5 class="mb-4 fw-bold text-white p-3">GV NUTRITION</h5>
+  <ul class="nav flex-column gap-3 px-3">
+    <li class="nav-item">
+      <a class="nav-link text-white" href="manage_stocks.php"><i class="fa-solid fa-boxes-stacked"></i> Manage stocks</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-white" href="report.php"><i class="fa-solid fa-chart-line"></i> Report</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link text-white" href="sales.php"><i class="fa-solid fa-clock-rotate-left"></i> Sales history</a>
+    </li>
+    <li class="nav-item mt-3">
+    <a class="nav-link text-white" href="logout.php"><i class="fa-solid fa-sign-out-alt"></i> Logout</a>
+
+    </li>
+  </ul>
+</div>
+
+<!-- Overlay -->
+<div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <div class="row align-items-center mb-4">
+    <div class="col-auto">
+      <button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="col">
+      <input type="text" id="productSearch" class="form-control" placeholder="Search products..." list="productList">
+<datalist id="productList">
+  <?php foreach ($products as $p): ?>
+    <option value="<?= htmlspecialchars($p['name']) ?>"></option>
+  <?php endforeach; ?>
+</datalist>
+
+
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary fw-bold px-4" data-bs-toggle="modal" data-bs-target="#placeOrderModal">Place Order</button>
+    </div>
+  </div>
+
+  <!-- Product Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered text-center">
+      <thead class="table-light fw-bold">
+
+        <tr class="product-row">
+          <th>Sr No.</th>
+          <th>Name</th>
+          <th>Description</th>
+          <th>Cost Price (₹)</th>
+          <th>Price (₹)</th>
+          <th>Quantity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if (!empty($products)): ?>
+          <?php foreach ($products as $index => $product): ?>
+            <tr>
+              <td><?= $index + 1 ?></td>
+              <td><?= htmlspecialchars($product['name']) ?></td>
+              <td><?= htmlspecialchars($product['description']) ?></td>
+              <td><?= number_format($product['cost_price'], 2) ?></td>
+              <td><?= number_format($product['price'], 2) ?></td>
+              <td><?= $product['quantity'] ?></td>
+            </tr>
+          <?php endforeach; ?>
+        <?php else: ?>
+          <tr><td colspan="6">No products found.</td></tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Place Order Modal -->
+<div class="modal fade" id="placeOrderModal" tabindex="-1" aria-labelledby="placeOrderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="../ajax/place_order.php" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="placeOrderModalLabel">Place Order</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="customer_name" class="form-label">Customer Name</label>
+          <input type="text" name="customer_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="phone" class="form-label">Phone Number</label>
+          <input type="text" name="phone" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="product_id" class="form-label">Select Product</label>
+          <select name="product_id" class="form-select" id="productSelect" required>
+            <option value="">-- Select Product --</option>
+            <?php foreach ($products as $prod): ?>
+              <option value="<?= $prod['id'] ?>"><?= htmlspecialchars($prod['name']) ?> - <?= htmlspecialchars($prod['description']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Quantity</label>
+          <input type="number" name="quantity" class="form-control" min="1" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="gst_type" class="form-label">GST Type</label>
+          <select name="gst_type" class="form-select" required>
+            <option value="">-- Select GST Type --</option>
+            <option value="inclusive">Inclusive (18%)</option>
+            <option value="exclusive">Exclusive (18%)</option>
+          </select>
+        </div>
+
+        <!-- Dynamic Total -->
+        <div id="grandTotal" class="alert alert-info text-center fw-bold">Grand Total: ₹0.00</div>
+
+        <!-- Hidden Fields -->
+        <input type="hidden" name="gst_amount" id="gstAmount">
+        <input type="hidden" name="total_price" id="totalPrice">
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Place Order</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('active');
+    document.getElementById('overlay').classList.toggle('active');
+  }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const productSelect = document.getElementById('productSelect');
+    const quantityInput = document.querySelector('input[name="quantity"]');
+    const gstSelect = document.querySelector('select[name="gst_type"]');
+    const grandTotal = document.getElementById('grandTotal');
+    const gstAmountInput = document.getElementById('gstAmount');
+    const totalPriceInput = document.getElementById('totalPrice');
+
+    const products = <?= json_encode($products) ?>;
+
+    function calculateTotal() {
+      const selectedId = productSelect.value;
+      const quantity = parseInt(quantityInput.value || 0);
+      const gstType = gstSelect.value;
+
+      const selectedProduct = products.find(p => p.id == selectedId);
+      if (!selectedProduct || quantity <= 0 || !gstType) {
+        grandTotal.innerText = "Grand Total: ₹0.00";
+        gstAmountInput.value = "";
+        totalPriceInput.value = "";
+        return;
+      }
+
+      const pricePerUnit = parseFloat(selectedProduct.price);
+      const basePrice = pricePerUnit * quantity;
+      const gstRate = 0.18;
+
+      let gstAmount = 0;
+      let finalTotal = 0;
+
+      if (gstType === "inclusive") {
+        gstAmount = basePrice * (gstRate / (1 + gstRate));
+        finalTotal = basePrice;
+      } else if (gstType === "exclusive") {
+        gstAmount = basePrice * gstRate;
+        finalTotal = basePrice + gstAmount;
+      }
+
+      grandTotal.innerText = `Grand Total: ₹${finalTotal.toFixed(2)} (GST: ₹${gstAmount.toFixed(2)})`;
+      gstAmountInput.value = gstAmount.toFixed(2);
+      totalPriceInput.value = finalTotal.toFixed(2);
+    }
+
+    productSelect.addEventListener('change', calculateTotal);
+    quantityInput.addEventListener('input', calculateTotal);
+    gstSelect.addEventListener('change', calculateTotal);
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("productSearch");
+    const suggestionsBox = document.getElementById("searchSuggestions");
+
+    const products = <?= json_encode(array_column($products, 'name')) ?>;
+
+    searchInput.addEventListener("input", function () {
+      const query = this.value.toLowerCase();
+      suggestionsBox.innerHTML = "";
+
+      if (query.length === 0) return;
+
+      const matches = products.filter(name => name.toLowerCase().includes(query)).slice(0, 5);
+
+      if (matches.length === 0) {
+        suggestionsBox.innerHTML = "<div class='list-group-item'>No match found</div>";
+      } else {
+        matches.forEach(name => {
+          const item = document.createElement("div");
+          item.className = "list-group-item list-group-item-action";
+          item.textContent = name;
+          item.addEventListener("click", () => {
+            searchInput.value = name;
+            suggestionsBox.innerHTML = "";
+            filterTableByName(name); // Optional: also filter table directly
+          });
+          suggestionsBox.appendChild(item);
+        });
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+        suggestionsBox.innerHTML = "";
+      }
+    });
+
+    function filterTableByName(name) {
+      const rows = document.querySelectorAll(".product-row");
+      rows.forEach(row => {
+        const rowName = row.children[1].textContent.toLowerCase();
+        row.style.display = rowName.includes(name.toLowerCase()) ? "" : "none";
+      });
+    }
+  });
+</script>
+
+</body>
+</html>

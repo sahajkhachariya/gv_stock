@@ -1,3 +1,37 @@
+<?php
+session_start();
+require_once '../config/db.php';
+
+$db = new DB();
+$conn = $db->connect();
+
+if (isset($_SESSION['admin_logged_in'])) {
+    header("Location: home.php");
+    exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = trim($_POST['username']);
+    $password = md5(trim($_POST['password']));
+
+    $stmt = $conn->prepare("SELECT * FROM admin WHERE username = ? AND password = ?");
+    $stmt->bind_param("ss", $username, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows === 1) {
+        $_SESSION['admin_logged_in'] = true;
+        $_SESSION['admin_username'] = $username;
+        header("Location: home.php");
+        exit();
+    } else {
+        $error = "Invalid username or password.";
+    }
+
+    $stmt->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +39,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Login - Stock Management</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script> <!-- For icons -->
 </head>
 <body>
@@ -42,24 +76,12 @@
         <div class="login-box bg-light text-dark rounded-4 p-5 shadow" style="min-width: 300px;">
           <h4 class="fw-semibold">Login</h4>
           <small class="text-muted">Glad you're back</small>
+          <?php if (!empty($error)): ?>
+<div class="alert alert-danger"><?php echo $error; ?></div>
+<?php endif; ?>
+
       <form class="mt-4" method="POST" action="">
-  <?php
-    session_start();
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-      require_once 'includes/config.php';
 
-      $input_user = $_POST['username'];
-      $input_pass = $_POST['password'];
-
-      if ($input_user === $admin_username && $input_pass === $admin_password) {
-        $_SESSION['admin_logged_in'] = true;
-        header("Location: home.php");
-        exit();
-      } else {
-        echo '<div class="alert alert-danger" role="alert">Invalid credentials!</div>';
-      }
-    }
-  ?>
   <div class="mb-3">
     <input type="text" class="form-control" name="username" placeholder="Username" required />
   </div>
