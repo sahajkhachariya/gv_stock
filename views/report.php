@@ -1,4 +1,53 @@
 <style>
+  @media screen and (max-width: 768px) {
+  .container {
+    padding: 20px;
+  }
+
+  .row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .row .col-auto {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .row .col-auto label,
+  .row .col-auto input,
+  .row .col-auto button {
+    width: 100%;
+  }
+
+  #reportSummary p {
+    font-size: 14px;
+  }
+
+  #salesList table {
+    font-size: 13px;
+  }
+
+  #salesList th, #salesList td {
+    padding: 6px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  h3 {
+    font-size: 18px;
+  }
+
+  #reportSummary p {
+    font-size: 13px;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
   body {
     background-color: #f5f9ff; /* soft white-blue background */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;

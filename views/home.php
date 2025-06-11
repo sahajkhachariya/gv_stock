@@ -90,6 +90,87 @@ $products = $product->getAllProducts();
 
     @media (min-width: 768px) {
       .main-content { padding: 2rem; }
+
+      @media (max-width: 992px) {
+  .main-content {
+    padding: 1rem;
+  }
+
+  .table th,
+  .table td {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  .modal-dialog {
+    max-width: 90%;
+    margin: 1rem auto;
+  }
+
+  .form-label,
+  .form-control,
+  .form-select {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 768px) {
+  .row.align-items-center {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .hamburger {
+    margin-bottom: 10px;
+  }
+
+  .col-auto,
+  .col {
+    width: 100%;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .modal-body .form-label {
+    font-size: 13px;
+  }
+
+  .modal-body input,
+  .modal-body select {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar h5 {
+    font-size: 16px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+  }
+
+  .modal-dialog {
+    max-width: 95%;
+  }
+
+  #grandTotal {
+    font-size: 14px;
+  }
+}
+
     }
   </style>
 </head>

@@ -39,6 +39,72 @@ $products = $product->getAllProducts();
     .table td { vertical-align: middle; }
     .table .btn i { margin-right: 4px; }
     h3 { font-weight: 600; }
+
+    @media screen and (max-width: 992px) {
+  .table thead {
+    font-size: 14px;
+  }
+
+  .table td, .table th {
+    padding: 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .btn {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .modal-dialog {
+    max-width: 90%;
+    margin: 1rem auto;
+  }
+
+  .modal-body .form-label {
+    font-size: 14px;
+  }
+
+  .modal-body input,
+  .modal-body textarea,
+  .modal-body select {
+    font-size: 14px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  .dropdown-menu {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .dropdown {
+    width: 100%;
+  }
+
+  .dropdown-toggle {
+    width: 100%;
+    text-align: left;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .modal-dialog {
+    max-width: 95%;
+  }
+}
+
   </style>
 </head>
 <body class="bg-white">

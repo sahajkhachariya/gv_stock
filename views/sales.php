@@ -15,53 +15,96 @@ if ($result && $result->num_rows > 0) {
 ?>
 
 <!-- Heading -->
-<h3 class="text-center mt-4 mb-4 fw-bold">SALES</h3>
+<!-- Page Container -->
+<div class="page-wrapper">
+  <div class="sales-container">
+    <!-- Heading -->
+    <h3 class="sales-heading">SALES</h3>
 
-<!-- Sales Table -->
-<div class="container">
-  <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover">
-      <thead class="table-light">
-        <tr>
-          <th>Customer</th>
-          <th>Phone</th>
-          <th>Product</th>
-          <th>Description</th>
-          <th>Qty</th>
-          <th>Price/unit</th>
-          <th>GST Type</th>
-          <th>Total</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($sales as $sale): ?>
+    <!-- Table -->
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-hover">
+        <thead class="table-light">
           <tr>
-            <td><?= htmlspecialchars($sale['customer_name']) ?></td>
-            <td><?= htmlspecialchars($sale['customer_phone']) ?></td>
-            <td><?= htmlspecialchars($sale['name']) ?></td>
-            <td><?= htmlspecialchars($sale['description']) ?></td>
-            <td><?= $sale['quantity'] ?></td>
-            <td>₹<?= number_format($sale['price_per_unit'], 2) ?></td>
-            <td><?= $sale['gst_type'] ?></td>
-            <td>₹<?= number_format($sale['total_price'], 2) ?></td>
-            <td><?= date('d-m-Y H:i', strtotime($sale['created_at'])) ?></td>
+            <th>Customer</th>
+            <th>Phone</th>
+            <th>Product</th>
+            <th>Description</th>
+            <th>Qty</th>
+            <th>Price/unit</th>
+            <th>GST Type</th>
+            <th>Total</th>
+            <th>Date</th>
           </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <?php foreach ($sales as $sale): ?>
+            <tr>
+              <td><?= htmlspecialchars($sale['customer_name']) ?></td>
+              <td><?= htmlspecialchars($sale['customer_phone']) ?></td>
+              <td><?= htmlspecialchars($sale['name']) ?></td>
+              <td><?= htmlspecialchars($sale['description']) ?></td>
+              <td><?= $sale['quantity'] ?></td>
+              <td>₹<?= number_format($sale['price_per_unit'], 2) ?></td>
+              <td><?= $sale['gst_type'] ?></td>
+              <td>₹<?= number_format($sale['total_price'], 2) ?></td>
+              <td><?= date('d-m-Y H:i', strtotime($sale['created_at'])) ?></td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
 
 <!-- Table Styling -->
 <style>
  /* Table Styling - Dark Blue & White Theme */
+body {
+  background-color: #f1f6ff;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.sales-container {
+  width: 100%;
+  max-width: 1100px;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 44, 111, 0.15);
+}
+
+.sales-heading {
+  text-align: center;
+  font-size: 24px;
+  color: #002c6f;
+  font-weight: 700;
+  margin-bottom: 25px;
+  letter-spacing: 0.5px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  display: block; /* Ensure it stacks properly below heading */
+}
+
 .table {
-  margin-top: 20px;
+  width: 100%;
+  margin: 0 auto;
   background-color: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 44, 111, 0.15); /* subtle dark blue shadow */
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  table-layout: auto;
 }
 
 .table th,
@@ -73,40 +116,59 @@ if ($result && $result->num_rows > 0) {
 }
 
 .table th {
-  background-color: #002c6f; /* Dark Blue */
-  color: #ffffff; /* White Text */
+  background-color: #002c6f;
+  color: #ffffff;
   font-weight: 600;
   border-bottom: 2px solid #004aad;
 }
 
 .table td {
-  color: #222; /* Dark Text */
+  color: #222;
   background-color: #ffffff;
 }
 
 .table thead th {
-  border-bottom: 2px solid #004aad; /* Border under header */
+  border-bottom: 2px solid #004aad;
 }
 
 .table-bordered td,
 .table-bordered th {
-  border: 1px solid #cce0ff; /* Light blue border */
+  border: 1px solid #cce0ff;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-  background-color: #f5f9ff; /* Very light blue for alternating rows */
+  background-color: #f5f9ff;
 }
 
 .table-hover tbody tr:hover {
-  background-color: #eaf2ff; /* Light blue on hover */
+  background-color: #eaf2ff;
   transition: 0.2s ease-in-out;
 }
 
-/* Optional: Center the heading */
-h3.text-center {
-  color: #002c6f; /* Match dark blue heading */
-  font-weight: bold;
-  letter-spacing: 0.5px;
+@media screen and (max-width: 768px) {
+  .table th,
+  .table td {
+    font-size: 13px;
+    padding: 10px 6px;
+  }
+
+  .sales-heading {
+    font-size: 20px;
+  }
 }
 
+@media screen and (max-width: 576px) {
+  .table-responsive {
+    overflow-x: auto;
+  }
+
+  .sales-container {
+    padding: 20px;
+  }
+
+  .table th,
+  .table td {
+    white-space: nowrap;
+  }
+}
 </style>
