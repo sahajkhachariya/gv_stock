@@ -96,5 +96,100 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   </div>
 
+  <style>
+    /* styles.css */
+
+/* Background color from the design */
+.bg-dark-blue {
+  background-color: #002c6f;
+}
+
+/* Simulated bar chart */
+.chart-bar {
+  display: flex;
+  gap: 5px;
+  align-items: flex-end;
+  height: 80px;
+}
+
+.bar {
+  width: 12px;
+  background-color: #00e0ff;
+  border-radius: 4px;
+}
+
+.bar-1 { height: 30px; }
+.bar-2 { height: 50px; background-color: #00c2ff; }
+.bar-3 { height: 70px; background-color: #00aaff; }
+.bar-4 { height: 40px; background-color: #008cff; }
+
+.login-box {
+  max-width: 400px;
+  width: 100%;
+
+  @media screen and (max-width: 768px) {
+  .login-box {
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .display-3 {
+    font-size: 2rem;
+  }
+
+  .lead {
+    font-size: 1rem;
+  }
+
+  .icon-section {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .icon-set {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .container-fluid {
+    padding: 1rem;
+  }
+
+  .login-box {
+    padding: 1.5rem;
+  }
+
+  .chart-bar {
+    height: 60px;
+  }
+
+  .bar {
+    width: 10px;
+  }
+
+  .bar-1 { height: 25px; }
+  .bar-2 { height: 40px; }
+  .bar-3 { height: 55px; }
+  .bar-4 { height: 35px; }
+
+  .icon-set i {
+    font-size: 1.5rem;
+  }
+
+  .btn {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
+
+}
+
+
+
+  </style>
 </body>
 </html>
