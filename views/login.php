@@ -48,7 +48,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="row w-100">
 
       <!-- Left Section -->
-      <div class="col-md-6 d-flex flex-column justify-content-center ps-md-5 px-4">
+      <div class="col-md-6 d-flex flex-column justify-content-center ps-md-5 px-4 text-center text-md-start">
+        <img src="../assets/images/logo.png" alt="Logo" class="img-fluid mb-4" style="max-width: 200px;">
         <h1 class="display-3 fw-bold">Welcome Back<span class="text-white"> !</span></h1>
         <p class="lead mt-3">
           Today is a new day. It’s your day. You shape it. <br />
@@ -76,20 +77,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="login-box bg-light text-dark rounded-4 p-5 shadow" style="min-width: 300px;">
           <h4 class="fw-semibold">Login</h4>
           <small class="text-muted">Glad you're back</small>
+          
           <?php if (!empty($error)): ?>
-<div class="alert alert-danger"><?php echo $error; ?></div>
-<?php endif; ?>
+            <div class="alert alert-danger mt-3"><?php echo $error; ?></div>
+          <?php endif; ?>
 
-      <form class="mt-4" method="POST" action="">
-
-  <div class="mb-3">
-    <input type="text" class="form-control" name="username" placeholder="Username" required />
-  </div>
-  <div class="mb-4">
-    <input type="password" class="form-control" name="password" placeholder="Password" required />
-  </div>
-  <button type="submit" class="btn btn-primary w-100 fw-bold">LOGIN</button>
-</form>
+          <form class="mt-4" method="POST" action="">
+            <div class="mb-3">
+              <input type="text" class="form-control" name="username" placeholder="Username" required />
+            </div>
+            <div class="mb-4">
+              <input type="password" class="form-control" name="password" placeholder="Password" required />
+            </div>
+            <button type="submit" class="btn btn-primary w-100 fw-bold">LOGIN</button>
+          </form>
         </div>
       </div>
 
