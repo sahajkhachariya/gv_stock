@@ -116,10 +116,14 @@ $products = $product->getAllProducts();
       <button class="btn custom-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
         <i class="fa-solid fa-plus"></i> Add Product
       </button>
+      <button class="btn btn-secondary fw-bold" data-bs-toggle="modal" data-bs-target="#addPurchaseModal">
+  Add Purchase
+</button>
       <ul class="dropdown-menu">
         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addNewProductModal">Add New Product</a></li>
         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addToExistingProductModal">Add to Existing Product</a></li>
       </ul>
+
     </div>
   </div>
 
@@ -133,6 +137,7 @@ $products = $product->getAllProducts();
           <th>Cost Price (₹)</th>
           <th>Price (₹)</th>
           <th>Quantity</th>
+          <th>Product Code</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -145,6 +150,7 @@ $products = $product->getAllProducts();
           <td><?= number_format($product['cost_price'], 2) ?></td>
           <td><?= number_format($product['price'], 2) ?></td>
           <td><?= $product['quantity'] ?></td>
+          <td><?= htmlspecialchars($product['product_code']) ?></td>
           <td>
             <button 
               class="btn btn-sm btn-outline-primary me-1 edit-btn"
@@ -201,6 +207,11 @@ $products = $product->getAllProducts();
           <label class="form-label">Quantity</label>
           <input type="number" name="quantity" class="form-control" required min="1" />
         </div>
+        <div class="mb-3">
+  <label class="form-label">Product Code</label>
+  <input type="text" name="product_code" class="form-control" required pattern="[A-Za-z0-9\-]+" title="Alphanumeric code, no spaces" />
+</div>
+
       </div>
       <div class="modal-footer">
         <button type="submit" class="btn custom-primary">Add Product</button>
@@ -280,8 +291,85 @@ $products = $product->getAllProducts();
   </div>
 </div>
 
+<!-- Add Purchase Modal -->
+<div class="modal fade" id="addPurchaseModal" tabindex="-1" aria-labelledby="addPurchaseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form method="POST" action="../ajax/place_purchase.php" class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addPurchaseModalLabel">Add Purchase</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="mb-3">
+          <label for="supplier_name" class="form-label">Supplier Name</label>
+          <input type="text" name="supplier_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="supplier_phone" class="form-label">Phone Number</label>
+          <input type="text" name="supplier_phone" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Product</label>
+          <select name="product_id" id="purchase_product_id" class="form-select" required>
+  <option value="">-- Select Product --</option>
+  <?php foreach ($products as $prod): ?>
+    <option value="<?= $prod['id'] ?>" data-code="<?= htmlspecialchars($prod['product_code']) ?>">
+      <?= htmlspecialchars($prod['name']) ?> - <?= htmlspecialchars($prod['description']) ?>
+    </option>
+  <?php endforeach; ?>
+</select>
+
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Quantity</label>
+          <input type="number" name="quantity" class="form-control" min="1" required>
+        </div>
+<div class="mb-3">
+  <label class="form-label">Product Code</label>
+  <input type="text" id="purchase_product_code" class="form-control" readonly>
+</div>
+
+        <div class="mb-3">
+          <label class="form-label">Cost Price (per unit)</label>
+          <input type="number" step="0.01" name="cost_price" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">GST Type</label>
+          <select name="gst_type" class="form-select" required>
+            <option value="">-- Select GST Type --</option>
+            <option value="igst">IGST (18%)</option>
+            <option value="cgst_sgst">SGST (9%) + CGST (9%)</option>
+          </select>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success">Add Purchase</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('purchase_product_id').addEventListener('change', function () {
+    const selected = this.options[this.selectedIndex];
+    const code = selected.getAttribute('data-code') || '';
+    document.getElementById('purchase_product_code').value = code;
+  });
+</script>
+
 <script>
   // Populate edit modal
   document.querySelectorAll('.edit-btn').forEach(button => {

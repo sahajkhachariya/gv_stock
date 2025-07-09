@@ -10,11 +10,12 @@ class Product {
     }
 
     // Add a new product with separate cost price and selling price
-    public function addNewProduct($name, $description, $cost_price, $price, $quantity) {
-        $stmt = $this->conn->prepare("INSERT INTO products (name, description, cost_price, price, quantity) VALUES (?, ?, ?, ?, ?)");
-        $stmt->bind_param("ssddi", $name, $description, $cost_price, $price, $quantity);
-        return $stmt->execute();
-    }
+   public function addNewProduct($product_code, $name, $description, $cost_price, $price, $quantity) {
+    $stmt = $this->conn->prepare("INSERT INTO products (product_code, name, description, cost_price, price, quantity) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssddi", $product_code, $name, $description, $cost_price, $price, $quantity);
+    return $stmt->execute();
+}
+
 
     // Fetch all products
     public function getAllProducts() {

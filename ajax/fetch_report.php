@@ -15,29 +15,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $db = new DB();
     $conn = $db->connect();
 
-    // Continue with rest of logic...
-
-
-    // Total Units Sold and Revenue
-    $stmt = $conn->prepare("SELECT SUM(quantity) as total_units, SUM(total_price) as total_revenue, SUM(quantity * price_per_unit) as base_cost FROM sales WHERE created_at BETWEEN ? AND ?");
+    // 1. Total Units Sold and Revenue
+    $stmt = $conn->prepare("SELECT SUM(quantity) as total_units, SUM(total_price) as total_revenue FROM sales WHERE created_at BETWEEN ? AND ?");
     $stmt->bind_param("ss", $from, $to);
     $stmt->execute();
-    $stmt->bind_result($total_units, $total_revenue, $base_cost);
+    $stmt->bind_result($total_units, $total_revenue);
     $stmt->fetch();
     $stmt->close();
 
-    // Net Profit
-    $net_profit = $total_revenue - $base_cost;
+    // 2. Total Purchase Expense
+    $stmt2 = $conn->prepare("SELECT SUM(total_price) as total_purchase FROM purchases WHERE created_at BETWEEN ? AND ?");
+    $stmt2->bind_param("ss", $from, $to);
+    $stmt2->execute();
+    $stmt2->bind_result($total_purchase);
+    $stmt2->fetch();
+    $stmt2->close();
 
-    // Current Stock Value (remaining qty × cost_price)
+    // 3. Stock Value (Qty x Cost)
     $stock_value = 0;
     $stock_query = $conn->query("SELECT quantity, cost_price FROM products");
     while ($row = $stock_query->fetch_assoc()) {
         $stock_value += $row['quantity'] * $row['cost_price'];
     }
 
-    // Sales List
-    $sales_html = '<table class="table table-bordered mt-4">
+    // 4. Sales List HTML
+    $sales_html = '<div style="overflow-x:auto;"><table class="table-report">
     <thead class="table-light">
       <tr>
         <th>Customer</th>
@@ -64,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <td>' . htmlspecialchars($sale['name']) . '</td>
                 <td>' . $sale['quantity'] . '</td>
                 <td>₹' . number_format($sale['price_per_unit'], 2) . '</td>
-                <td>' . $sale['gst_type'] . '</td>
+                <td>' . strtoupper($sale['gst_type']) . '</td>
                 <td>₹' . number_format($sale['total_price'], 2) . '</td>
                 <td>' . date('d-m-Y H:i', strtotime($sale['created_at'])) . '</td>
               </tr>';
@@ -73,13 +75,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $sales_html .= '<tr><td colspan="8" class="text-center">No sales in selected date range</td></tr>';
     }
 
-    $sales_html .= '</tbody></table>';
+    $sales_html .= '</tbody></table></div>';
 
+    // Final Output
     echo json_encode([
         'success' => true,
         'units_sold' => $total_units ?? 0,
         'total_revenue' => number_format($total_revenue ?? 0, 2),
-        'net_profit' => number_format($net_profit ?? 0, 2),
+        'total_purchase' => number_format($total_purchase ?? 0, 2),
+        'net_profit' => number_format(($total_revenue ?? 0) - ($total_purchase ?? 0), 2),
         'stock_value' => number_format($stock_value ?? 0, 2),
         'sales_html' => $sales_html
     ]);

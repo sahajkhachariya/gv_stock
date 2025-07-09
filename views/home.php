@@ -82,6 +82,12 @@ $products = $product->getAllProducts();
       background-color: #002c6f;
       border-radius: 2px;
     }
+    .product-code-display {
+  font-size: 12px;
+  color: #6c757d;
+  margin-top: 4px;
+}
+
 
     .menu-btn:hover { color: #0149a3; }
 
@@ -184,8 +190,14 @@ $products = $product->getAllProducts();
       <a class="nav-link text-white" href="manage_stocks.php"><i class="fa-solid fa-boxes-stacked"></i> Manage stocks</a>
     </li>
     <li class="nav-item">
-      <a class="nav-link text-white" href="report.php"><i class="fa-solid fa-chart-line"></i> Report</a>
+      <a class="nav-link text-white" href="report.php"><i class="fa-solid fa-chart-line"></i> sales Report</a>
     </li>
+    <li class="nav-item">
+  <a class="nav-link text-white" href="purchase_report.php">
+    <i class="fa-solid fa-clipboard-list"></i> Purchase Report
+  </a>
+</li>
+
     <li class="nav-item">
       <a class="nav-link text-white" href="sales.php"><i class="fa-solid fa-clock-rotate-left"></i> Sales history</a>
     </li>
@@ -228,31 +240,36 @@ $products = $product->getAllProducts();
       <thead class="table-light fw-bold">
 
         <tr class="product-row">
-          <th>Sr No.</th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Cost Price (₹)</th>
-          <th>Price (₹)</th>
-          <th>Quantity</th>
-        </tr>
+  <th>Sr No.</th>
+  <th>Product Code</th>
+  <th>Name</th>
+  <th>Description</th>
+  <th>Cost Price (₹)</th>
+  <th>Price (₹)</th>
+  <th>Quantity</th>
+</tr>
+
       </thead>
       <tbody>
         <?php if (!empty($products)): ?>
-          <?php foreach ($products as $index => $product): ?>
-            <tr>
-              <td><?= $index + 1 ?></td>
-              <td><?= htmlspecialchars($product['name']) ?></td>
-              <td><?= htmlspecialchars($product['description']) ?></td>
-              <td><?= number_format($product['cost_price'], 2) ?></td>
-              <td><?= number_format($product['price'], 2) ?></td>
-              <td><?= $product['quantity'] ?></td>
-            </tr>
-          <?php endforeach; ?>
+         <?php foreach ($products as $index => $product): ?>
+  <tr>
+    <td><?= $index + 1 ?></td>
+    <td><?= htmlspecialchars($product['product_code']) ?></td>
+    <td><?= htmlspecialchars($product['name']) ?></td>
+    <td><?= htmlspecialchars($product['description']) ?></td>
+    <td><?= number_format($product['cost_price'], 2) ?></td>
+    <td><?= number_format($product['price'], 2) ?></td>
+    <td><?= $product['quantity'] ?></td>
+  </tr>
+<?php endforeach; ?>
+
         <?php else: ?>
           <tr><td colspan="6">No products found.</td></tr>
         <?php endif; ?>
       </tbody>
     </table>
+    <!-- <button type="button" class="btn btn-sm btn-outline-primary" id="addProductRow">+ Add Product</button> -->
   </div>
 </div>
 
@@ -276,37 +293,63 @@ $products = $product->getAllProducts();
           <input type="text" name="phone" class="form-control" required>
         </div>
 
-        <div class="mb-3">
-          <label for="product_id" class="form-label">Select Product</label>
-          <select name="product_id" class="form-select" id="productSelect" required>
-            <option value="">-- Select Product --</option>
-            <?php foreach ($products as $prod): ?>
-              <option value="<?= $prod['id'] ?>"><?= htmlspecialchars($prod['name']) ?> - <?= htmlspecialchars($prod['description']) ?></option>
-            <?php endforeach; ?>
-          </select>
-        </div>
+     <div id="productGroupContainer">
+  <div class="product-group row mb-2">
+    <div class="col-6">
+      <select name="product_id[]" class="form-select product-select" required>
+        <option value="">-- Select Product --</option>
+        <?php foreach ($products as $prod): ?>
+          <option 
+            value="<?= $prod['id'] ?>" 
+            data-price="<?= $prod['price'] ?>" 
+            data-code="<?= htmlspecialchars($prod['product_code']) ?>"
+          >
+            <?= htmlspecialchars($prod['name']) ?> - <?= htmlspecialchars($prod['description']) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+      <small class="text-muted product-code-display"></small>
+    </div>
+    <div class="col-3">
+      <input type="number" name="quantity[]" class="form-control product-qty" min="1" value="1" required>
+    </div>
+    <div class="col-3">
+      <button type="button" class="btn btn-danger remove-product">Remove</button>
+    </div>
+  </div>
+</div>
 
-        <div class="mb-3">
+<button type="button" class="btn btn-secondary mb-3" id="addProductBtn">+ Add Another Product</button>
+
+        <!-- <div class="mb-3">
           <label for="quantity" class="form-label">Quantity</label>
           <input type="number" name="quantity" class="form-control" min="1" required>
-        </div>
+        </div> -->
 
         <div class="mb-3">
           <label for="gst_type" class="form-label">GST Type</label>
-          <select name="gst_type" class="form-select" required>
+          <select name="gst_type" class="form-select" id="overallGstType" required>
+
             <option value="">-- Select GST Type --</option>
             <option value="inclusive">Inclusive (18%)</option>
             <option value="exclusive">Exclusive (18%)</option>
           </select>
         </div>
+  <div class="mb-3">
+  <label for="discount_percent" class="form-label">Discount (%)</label>
+<input type="number" name="discount_percent" id="discountInput" class="form-control" min="0" step="0.01" placeholder="e.g. 10 for 10%" />
 
-        <!-- Dynamic Total -->
-        <div id="grandTotal" class="alert alert-info text-center fw-bold">Grand Total: ₹0.00</div>
+</div>
 
-        <!-- Hidden Fields -->
-        <input type="hidden" name="gst_amount" id="gstAmount">
-        <input type="hidden" name="total_price" id="totalPrice">
-      </div>
+
+  <!-- Updated Dynamic Total -->
+  <div id="grandTotal" class="alert alert-info text-center fw-bold">Grand Total: ₹0.00</div>
+
+  <!-- Hidden Fields -->
+  <input type="hidden" name="gst_amount" id="gstAmount">
+  <input type="hidden" name="total_price" id="totalPrice">
+  <input type="hidden" name="discount_amount" id="discountAmount">
+</div>
 
       <div class="modal-footer">
         <button type="submit" class="btn btn-success">Place Order</button>
@@ -422,6 +465,116 @@ $products = $product->getAllProducts();
     }
   });
 </script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const products = <?= json_encode($products) ?>;
+    const productGroupContainer = document.getElementById("productGroupContainer");
+    const addItemBtn = document.getElementById("addProductBtn");
+    const gstSelect = document.getElementById("overallGstType");
+    const grandTotalDiv = document.getElementById("grandTotal");
+    const gstAmountInput = document.getElementById("gstAmount");
+    const totalPriceInput = document.getElementById("totalPrice");
+    const discountInput = document.querySelector('input[name="discount_percent"]');
+
+
+   addItemBtn.addEventListener("click", () => {
+  const newGroup = document.createElement("div");
+  newGroup.className = "product-group row mb-2";
+
+  newGroup.innerHTML = `
+    <div class="col-6">
+      <select name="product_id[]" class="form-select product-select" required>
+        <option value="">-- Select Product --</option>
+        ${products.map(p => `
+          <option value="${p.id}" data-price="${p.price}" data-code="${p.product_code}">
+            ${p.name} - ${p.description}
+          </option>`).join('')}
+      </select>
+      <small class="text-muted product-code-display"></small>
+    </div>
+    <div class="col-3">
+      <input type="number" name="quantity[]" class="form-control product-qty" min="1" value="1" required>
+    </div>
+    <div class="col-3">
+      <button type="button" class="btn btn-danger remove-product">Remove</button>
+    </div>
+  `;
+  productGroupContainer.appendChild(newGroup);
+  calculateTotal();
+});
+
+
+    productGroupContainer.addEventListener("click", function (e) {
+      if (e.target.classList.contains("remove-product")) {
+        e.target.closest(".product-group").remove();
+        calculateTotal();
+      }
+    });
+productGroupContainer.addEventListener("change", function (e) {
+  if (e.target.classList.contains("product-select")) {
+    const selectedOption = e.target.selectedOptions[0];
+    const code = selectedOption.dataset.code || '';
+    const codeDisplay = e.target.closest('.col-6').querySelector('.product-code-display');
+    codeDisplay.textContent = code ? `Code: ${code}` : '';
+  }
+});
+
+    productGroupContainer.addEventListener("input", calculateTotal);
+    productGroupContainer.addEventListener("change", calculateTotal);
+    gstSelect.addEventListener("change", calculateTotal);
+    discountInput?.addEventListener("input", calculateTotal);
+
+
+   function calculateTotal() {
+  const gstRate = 0.18;
+  const gstType = gstSelect.value;
+  const discountPercent = parseFloat(discountInput?.value || 0);
+
+  let subtotal = 0;
+
+  productGroupContainer.querySelectorAll(".product-group").forEach(group => {
+    const select = group.querySelector(".product-select");
+    const qtyInput = group.querySelector(".product-qty");
+    const quantity = parseInt(qtyInput.value || 0);
+    const product = products.find(p => p.id == select.value);
+
+    if (product && quantity > 0) {
+      subtotal += parseFloat(product.price) * quantity;
+    }
+  });
+
+  let gstAmount = 0;
+  let totalBeforeDiscount = 0;
+
+  if (gstType === "inclusive") {
+    gstAmount = subtotal * (gstRate / (1 + gstRate));
+    totalBeforeDiscount = subtotal;
+  } else if (gstType === "exclusive") {
+    gstAmount = subtotal * gstRate;
+    totalBeforeDiscount = subtotal + gstAmount;
+  }
+
+  let discountAmount = 0;
+  if (!isNaN(discountPercent) && discountPercent > 0) {
+    discountAmount = (totalBeforeDiscount * discountPercent) / 100;
+  }
+
+  let grandTotal = totalBeforeDiscount - discountAmount;
+
+  // Prevent negative total
+  grandTotal = Math.max(grandTotal, 0);
+
+  grandTotalDiv.innerText = `Grand Total: ₹${grandTotal.toFixed(2)} (GST: ₹${gstAmount.toFixed(2)}, Discount: ₹${discountAmount.toFixed(2)})`;
+  gstAmountInput.value = gstAmount.toFixed(2);
+  totalPriceInput.value = grandTotal.toFixed(2);
+  document.getElementById('discountAmount').value = discountAmount.toFixed(2);
+}
+
+    // Trigger initial calculation on page load
+    calculateTotal();
+  });
+</script>
+
 
 </body>
 </html>

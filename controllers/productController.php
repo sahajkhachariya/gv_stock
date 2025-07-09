@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $cost_price  = $_POST['cost_price'] ?? 0;
         $price       = $_POST['price'] ?? 0;
         $quantity    = $_POST['quantity'] ?? 0;
+        $product_code = $_POST['product_code'] ?? '';
 
-        if (!empty($name) && is_numeric($cost_price) && is_numeric($price) && is_numeric($quantity)) {
-            $success = $product->addNewProduct($name, $description, $cost_price, $price, $quantity);
-
+      if (!empty($product_code) && !empty($name) && is_numeric($cost_price) && is_numeric($price) && is_numeric($quantity)) {
+    $success = $product->addNewProduct($product_code, $name, $description, $cost_price, $price, $quantity);
             if ($success) {
                 header("Location: ../views/manage_stocks.php");
                 exit();

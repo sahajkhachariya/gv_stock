@@ -4,17 +4,51 @@ require_once '../config/db.php';
 $db = new DB();
 $conn = $db->connect();
 
+// Step 1: Fetch sales data
 $sales = [];
-$result = $conn->query("SELECT s.*, p.name, p.description FROM sales s JOIN products p ON s.product_id = p.id ORDER BY s.created_at DESC");
+$result = $conn->query("SELECT s.*, p.name, p.description, p.product_code FROM sales s JOIN products p ON s.product_id = p.id ORDER BY s.created_at DESC");
+
 
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
         $sales[] = $row;
     }
 }
+
+// Step 2: Group sales by customer + phone + datetime (to minute)
+$salesGrouped = [];
+
+foreach ($sales as $sale) {
+    $key = $sale['customer_name'] . '|' . $sale['customer_phone'] . '|' . date('Y-m-d H:i', strtotime($sale['created_at']));
+
+    if (!isset($salesGrouped[$key])) {
+        $salesGrouped[$key] = [
+            'customer_name' => $sale['customer_name'],
+            'customer_phone' => $sale['customer_phone'],
+            'products' => [],
+            'gst_types' => [],
+            'total_price' => 0,
+            'total_discount' => 0,
+            'created_at' => $sale['created_at']
+        ];
+    }
+
+    $salesGrouped[$key]['products'][] = [
+    'name' => $sale['name'],
+    'description' => $sale['description'],
+    'quantity' => $sale['quantity'],
+    'price_per_unit' => $sale['price_per_unit'],
+    'gst_type' => $sale['gst_type'],
+    'product_code' => $sale['product_code']
+];
+
+
+    $salesGrouped[$key]['gst_types'][] = $sale['gst_type'];
+    $salesGrouped[$key]['total_price'] += $sale['total_price'];
+    $salesGrouped[$key]['total_discount'] += isset($sale['discount_amount']) ? $sale['discount_amount'] : 0;
+}
 ?>
 
-<!-- Heading -->
 <!-- Page Container -->
 <div class="page-wrapper">
   <div class="sales-container">
@@ -33,22 +67,61 @@ if ($result && $result->num_rows > 0) {
             <th>Qty</th>
             <th>Price/unit</th>
             <th>GST Type</th>
+             <th>Product Code</th>
             <th>Total</th>
             <th>Date</th>
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($sales as $sale): ?>
+          <?php foreach ($salesGrouped as $group): ?>
             <tr>
-              <td><?= htmlspecialchars($sale['customer_name']) ?></td>
-              <td><?= htmlspecialchars($sale['customer_phone']) ?></td>
-              <td><?= htmlspecialchars($sale['name']) ?></td>
-              <td><?= htmlspecialchars($sale['description']) ?></td>
-              <td><?= $sale['quantity'] ?></td>
-              <td>₹<?= number_format($sale['price_per_unit'], 2) ?></td>
-              <td><?= $sale['gst_type'] ?></td>
-              <td>₹<?= number_format($sale['total_price'], 2) ?></td>
-              <td><?= date('d-m-Y H:i', strtotime($sale['created_at'])) ?></td>
+              <td><?= htmlspecialchars($group['customer_name']) ?></td>
+              <td><?= htmlspecialchars($group['customer_phone']) ?></td>
+
+              <td>
+                <?php foreach ($group['products'] as $product): ?>
+                  <?= htmlspecialchars($product['name']) ?><br>
+                <?php endforeach; ?>
+              </td>
+
+              <td>
+                <?php foreach ($group['products'] as $product): ?>
+                  <?= htmlspecialchars($product['description']) ?><br>
+                <?php endforeach; ?>
+              </td>
+
+              <td>
+                <?php foreach ($group['products'] as $product): ?>
+                  <?= $product['quantity'] ?><br>
+                <?php endforeach; ?>
+              </td>
+              
+              <td>
+                <?php foreach ($group['products'] as $product): ?>
+                  ₹<?= number_format($product['price_per_unit'], 2) ?><br>
+                <?php endforeach; ?>
+              </td>
+
+              <td>
+                <?php foreach ($group['products'] as $product): ?>
+                  <?= explode('(', $product['gst_type'])[0] ?><br>
+                <?php endforeach; ?>
+              </td>
+<td>
+  <?php foreach ($group['products'] as $product): ?>
+    <?= htmlspecialchars($product['product_code']) ?><br>
+  <?php endforeach; ?>
+</td>
+              <td>
+                ₹<?= number_format($group['total_price'], 2) ?>
+                <?php if ($group['total_discount'] > 0): ?>
+                  <div class="text-success small">Saved ₹<?= number_format($group['total_discount'], 2) ?></div>
+                <?php endif; ?>
+              </td>
+              
+
+
+              <td><?= date('d-m-Y H:i', strtotime($group['created_at'])) ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -57,10 +130,8 @@ if ($result && $result->num_rows > 0) {
   </div>
 </div>
 
-
 <!-- Table Styling -->
 <style>
- /* Table Styling - Dark Blue & White Theme */
 body {
   background-color: #f1f6ff;
   margin: 0;
@@ -94,7 +165,7 @@ body {
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  display: block; /* Ensure it stacks properly below heading */
+  display: block;
 }
 
 .table {
@@ -143,6 +214,11 @@ body {
 .table-hover tbody tr:hover {
   background-color: #eaf2ff;
   transition: 0.2s ease-in-out;
+}
+
+.text-success.small {
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 @media screen and (max-width: 768px) {
