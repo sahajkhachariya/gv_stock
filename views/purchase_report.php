@@ -41,74 +41,136 @@ foreach ($purchases as $p) {
 }
 ?>
 
-<!-- Page Wrapper -->
-<div class="page-wrapper">
-  <div class="sales-container">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase History</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f7fc;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .page-wrapper {
+      max-width: 1300px;
+      margin: auto;
+      padding: 30px;
+      background: #fff;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+    }
+    .sales-heading {
+      font-size: 28px;
+      font-weight: 700;
+      color: #002c6f;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .card {
+      border-radius: 8px;
+    }
+    .form-label {
+      font-weight: 600;
+    }
+    .btn-primary {
+      background-color: #002c6f;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #001c4a;
+    }
+    .table th {
+      background-color: #002c6f;
+      color: white;
+    }
+    .table td, .table th {
+      vertical-align: middle;
+      font-size: 14px;
+    }
+    .table-responsive {
+      margin-top: 20px;
+    }
+    @media(max-width: 768px) {
+      .sales-heading {
+        font-size: 22px;
+      }
+      .card-body h5 {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container my-4">
+  <div class="page-wrapper">
     <h3 class="sales-heading">PURCHASE HISTORY</h3>
-<form method="GET" class="row g-3 mb-4">
-  <div class="col-md-3">
-    <label for="from" class="form-label">From Date</label>
-    <input type="date" id="from" name="from" class="form-control" value="<?= isset($_GET['from']) ? $_GET['from'] : '' ?>">
-  </div>
-  <div class="col-md-3">
-    <label for="to" class="form-label">To Date</label>
-    <input type="date" id="to" name="to" class="form-control" value="<?= isset($_GET['to']) ? $_GET['to'] : '' ?>">
-  </div>
-  <div class="col-md-2 align-self-end">
-    <button type="submit" class="btn btn-primary">Filter</button>
-  </div>
-</form>
-<div class="row mb-4">
-  <div class="col-md-3">
-    <div class="card border-success">
-      <div class="card-body text-center">
-        <h6 class="text-muted">Total Purchase</h6>
-        <h5 class="text-success">₹<?= number_format($totalPurchase, 2) ?></h5>
+    <form method="GET" class="row g-3 mb-4">
+      <div class="col-md-3">
+        <label for="from" class="form-label">From Date</label>
+        <input type="date" id="from" name="from" class="form-control" value="<?= isset($_GET['from']) ? $_GET['from'] : '' ?>">
+      </div>
+      <div class="col-md-3">
+        <label for="to" class="form-label">To Date</label>
+        <input type="date" id="to" name="to" class="form-control" value="<?= isset($_GET['to']) ? $_GET['to'] : '' ?>">
+      </div>
+      <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+      </div>
+    </form>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card border-success">
+          <div class="card-body text-center">
+            <h6 class="text-muted">Total Purchase</h6>
+            <h5 class="text-success">₹<?= number_format($totalPurchase, 2) ?></h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-info">
+          <div class="card-body text-center">
+            <h6 class="text-muted">Total Quantity</h6>
+            <h5 class="text-info"><?= $totalQty ?></h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card border-warning">
+          <div class="card-body text-center">
+            <h6 class="text-muted">IGST</h6>
+            <h5 class="text-warning">₹<?= number_format($totalIGST, 2) ?></h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card border-primary">
+          <div class="card-body text-center">
+            <h6 class="text-muted">SGST</h6>
+            <h5 class="text-primary">₹<?= number_format($totalSGST, 2) ?></h5>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2">
+        <div class="card border-danger">
+          <div class="card-body text-center">
+            <h6 class="text-muted">CGST</h6>
+            <h5 class="text-danger">₹<?= number_format($totalCGST, 2) ?></h5>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-  <div class="col-md-3">
-    <div class="card border-info">
-      <div class="card-body text-center">
-        <h6 class="text-muted">Total Quantity</h6>
-        <h5 class="text-info"><?= $totalQty ?></h5>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-2">
-    <div class="card border-warning">
-      <div class="card-body text-center">
-        <h6 class="text-muted">IGST</h6>
-        <h5 class="text-warning">₹<?= number_format($totalIGST, 2) ?></h5>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-2">
-    <div class="card border-primary">
-      <div class="card-body text-center">
-        <h6 class="text-muted">SGST</h6>
-        <h5 class="text-primary">₹<?= number_format($totalSGST, 2) ?></h5>
-      </div>
-    </div>
-  </div>
-  <div class="col-md-2">
-    <div class="card border-danger">
-      <div class="card-body text-center">
-        <h6 class="text-muted">CGST</h6>
-        <h5 class="text-danger">₹<?= number_format($totalCGST, 2) ?></h5>
-      </div>
-    </div>
-  </div>
-</div>
 
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-hover">
-        <thead class="table-light">
+        <thead>
           <tr>
             <th>Supplier</th>
             <th>Phone</th>
             <th>Product</th>
-            <th>Code</th> <!-- Added -->
+            <th>Code</th>
             <th>Description</th>
             <th>Qty</th>
             <th>Cost/Unit</th>
@@ -126,7 +188,7 @@ foreach ($purchases as $p) {
               <td><?= htmlspecialchars($purchase['supplier_name']) ?></td>
               <td><?= htmlspecialchars($purchase['supplier_phone']) ?></td>
               <td><?= htmlspecialchars($purchase['name']) ?></td>
-              <td><?= htmlspecialchars($purchase['product_code']) ?></td> <!-- Added -->
+              <td><?= htmlspecialchars($purchase['product_code']) ?></td>
               <td><?= htmlspecialchars($purchase['description']) ?></td>
               <td><?= $purchase['quantity'] ?></td>
               <td>₹<?= number_format($purchase['cost_price'], 2) ?></td>
@@ -143,70 +205,5 @@ foreach ($purchases as $p) {
     </div>
   </div>
 </div>
-
-<!-- Styles -->
-<style>
-body {
-  background-color: #f1f6ff;
-  margin: 0;
-  font-family: 'Segoe UI', sans-serif;
-}
-
-.page-wrapper {
-  display: flex;
-  justify-content: center;
-  padding: 40px 20px;
-}
-
-.sales-container {
-  width: 100%;
-  max-width: 1200px;
-  background-color: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 44, 111, 0.15);
-}
-
-.sales-heading {
-  text-align: center;
-  font-size: 24px;
-  color: #002c6f;
-  font-weight: 700;
-  margin-bottom: 25px;
-  letter-spacing: 0.5px;
-}
-
-.table th,
-.table td {
-  vertical-align: middle;
-  text-align: center;
-  font-size: 14px;
-  padding: 12px 10px;
-}
-
-.table th {
-  background-color: #002c6f;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: #f5f9ff;
-}
-
-.table-hover tbody tr:hover {
-  background-color: #eaf2ff;
-}
-
-@media screen and (max-width: 768px) {
-  .sales-heading {
-    font-size: 20px;
-  }
-
-  .table th,
-  .table td {
-    font-size: 13px;
-    padding: 10px 6px;
-  }
-}
-</style>
+</body>
+</html>
