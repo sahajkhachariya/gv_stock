@@ -1,4 +1,8 @@
 <?php
+<!-- Back Button -->
+<div class="back-button">
+  <a href="home.php">⬅</a>
+</div>
 require_once '../config/db.php';
 
 $db = new DB();
@@ -66,6 +70,27 @@ body {
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
 }
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    z-index: 10;
+  }
+
+  .back-button a {
+    background-color: #002c6f;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .back-button a:hover {
+    background-color: #002c6f;
+  }
 
 .page-wrapper {
   display: flex;

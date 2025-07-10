@@ -1,61 +1,67 @@
 <style>
   @media screen and (max-width: 768px) {
-  .container {
-    padding: 20px;
+    .container {
+      padding: 20px;
+    }
+
+    .row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .row .col-auto {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .row .col-auto label,
+    .row .col-auto input,
+    .row .col-auto button {
+      width: 100%;
+    }
+
+    #reportSummary p {
+      font-size: 14px;
+    }
+
+    #salesList table {
+      font-size: 13px;
+    }
+
+    #salesList th, #salesList td {
+      padding: 6px;
+    }
+
+    .back-button {
+      left: 15px;
+      top: 15px;
+    }
   }
 
-  .row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+  @media screen and (max-width: 480px) {
+    h3 {
+      font-size: 18px;
+    }
 
-  .row .col-auto {
-    width: 100%;
-    margin-bottom: 10px;
-  }
+    #reportSummary p {
+      font-size: 13px;
+    }
 
-  .row .col-auto label,
-  .row .col-auto input,
-  .row .col-auto button {
-    width: 100%;
+    .btn {
+      font-size: 13px;
+      padding: 6px 12px;
+    }
   }
-
-  #reportSummary p {
-    font-size: 14px;
-  }
-
-  #salesList table {
-    font-size: 13px;
-  }
-
-  #salesList th, #salesList td {
-    padding: 6px;
-  }
-}
-
-@media screen and (max-width: 480px) {
-  h3 {
-    font-size: 18px;
-  }
-
-  #reportSummary p {
-    font-size: 13px;
-  }
-
-  .btn {
-    font-size: 13px;
-    padding: 6px 12px;
-  }
-}
 
   body {
-    background-color: #f5f9ff; /* soft white-blue background */
+    background-color: #f5f9ff;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: #333;
-    padding: 20px;
+    padding: 60px 20px 20px;
     margin: 0;
     display: flex;
     justify-content: center;
+    position: relative;
   }
 
   .container {
@@ -68,8 +74,29 @@
     text-align: center;
   }
 
+  .back-button {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    z-index: 10;
+  }
+
+  .back-button a {
+    background-color: #002c6f;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .back-button a:hover {
+    background-color: #002c6f;
+  }
+
   h3 {
-    color: #004aad; /* deep blue heading */
+    color: #004aad;
     font-weight: bold;
   }
 
@@ -158,10 +185,14 @@
   #salesList tr:nth-child(even) {
     background-color: #f9f9f9;
   }
-
 </style>
 
 <?php include '../config/db.php'; ?>
+
+<!-- Back Button -->
+<div class="back-button">
+  <a href="home.php">⬅</a>
+</div>
 
 <div class="container mt-5">
   <h3 class="mb-4">📊 Sales Report</h3>
@@ -198,32 +229,32 @@
 </div>
 
 <script>
-document.getElementById('fetchReportBtn').addEventListener('click', function () {
-  const from = document.getElementById('from_date').value;
-  const to = document.getElementById('to_date').value;
+  document.getElementById('fetchReportBtn').addEventListener('click', function () {
+    const from = document.getElementById('from_date').value;
+    const to = document.getElementById('to_date').value;
 
-  if (!from || !to) {
-    alert("Please select both dates.");
-    return;
-  }
-
-  fetch('../ajax/fetch_report.php', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `from_date=${from}&to_date=${to}`
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      document.getElementById('reportSummary').style.display = 'block';
-      document.getElementById('units_sold').innerText = data.units_sold;
-      document.getElementById('total_revenue').innerText = data.total_revenue;
-      document.getElementById('net_profit').innerText = data.net_profit;
-      document.getElementById('stock_value').innerText = data.stock_value;
-      document.getElementById('salesList').innerHTML = data.sales_html;
-    } else {
-      alert("No data found for the selected range.");
+    if (!from || !to) {
+      alert("Please select both dates.");
+      return;
     }
+
+    fetch('../ajax/fetch_report.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `from_date=${from}&to_date=${to}`
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('reportSummary').style.display = 'block';
+        document.getElementById('units_sold').innerText = data.units_sold;
+        document.getElementById('total_revenue').innerText = data.total_revenue;
+        document.getElementById('net_profit').innerText = data.net_profit;
+        document.getElementById('stock_value').innerText = data.stock_value;
+        document.getElementById('salesList').innerHTML = data.sales_html;
+      } else {
+        alert("No data found for the selected range.");
+      }
+    });
   });
-});
 </script>

@@ -24,6 +24,27 @@ $products = $product->getAllProducts();
       background-color: #ffffff;
       color: #333;
     }
+
+     .back-button {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    z-index: 10;
+  }
+
+  .back-button a {
+    background-color: #002c6f;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .back-button a:hover {
+    background-color: #002c6f;
+  }
     .text-navy { color: #002c6f; }
     .custom-primary {
       background-color: #002c6f !important;
@@ -109,7 +130,13 @@ $products = $product->getAllProducts();
 </head>
 <body class="bg-white">
 
+<!-- Back Button -->
+<div class="back-button">
+  <a href="home.php">⬅</a>
+</div>
+
 <div class="container mt-5">
+  
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h3 class="text-navy">📦 Stock Records</h3>
     <div class="dropdown">
