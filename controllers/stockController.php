@@ -9,15 +9,16 @@ $product = new Product($conn); // Use $product everywhere
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if (isset($_POST['name'], $_POST['price'], $_POST['quantity'], $_POST['cost_price'])) {
-        $name = trim($_POST['name']);
-        $description = trim($_POST['description'] ?? '');
-        $cost_price = floatval($_POST['cost_price']);
-        $price = floatval($_POST['price']);
-        $quantity = intval($_POST['quantity']);
+    if (isset($_POST['name'], $_POST['price'], $_POST['quantity'], $_POST['cost_price'], $_POST['product_code'])) {
+        $name         = trim($_POST['name']);
+        $description  = trim($_POST['description'] ?? '');
+        $cost_price   = floatval($_POST['cost_price']);
+        $price        = floatval($_POST['price']);
+        $quantity     = intval($_POST['quantity']);
+        $product_code = trim($_POST['product_code']);
 
-        if ($name !== '' && $quantity > 0) {
-            $added = $product->addNewProduct($name, $description, $cost_price, $price, $quantity);
+        if ($name !== '' && $quantity > 0 && $product_code !== '') {
+            $added = $product->addNewProduct($product_code, $name, $description, $cost_price, $price, $quantity);
             if ($added) {
                 header("Location: ../views/manage_stock.php?msg=Product added successfully");
                 exit;
