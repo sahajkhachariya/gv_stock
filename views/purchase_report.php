@@ -53,6 +53,32 @@ foreach ($purchases as $p) {
       background-color: #f4f7fc;
       font-family: 'Segoe UI', sans-serif;
     }
+      .back-button {
+    position: absolute;
+    top: 20px;
+    left: 30px;
+    z-index: 10;
+  }
+
+  .back-button a {
+    background-color: #002c6f;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .back-button a:hover {
+    background-color: #002c6f;
+  }
+    .text-navy { color: #002c6f; }
+    .custom-primary {
+      background-color: #002c6f !important;
+      color: white !important;
+      border: none;
+    }
     .page-wrapper {
       max-width: 1300px;
       margin: auto;
@@ -103,7 +129,10 @@ foreach ($purchases as $p) {
   </style>
 </head>
 <body>
-<div class="container my-4">
+<div class="container my-4"><br>
+  <div class="back-button">
+  <a href="home.php">⬅</a>
+</div>
   <div class="page-wrapper">
     <h3 class="sales-heading">PURCHASE HISTORY</h3>
     <form method="GET" class="row g-3 mb-4">

@@ -218,6 +218,7 @@
   <div id="reportSummary" class="p-4 mb-4 rounded shadow-sm" style="background: #f8f9fa; display: none;">
     <h5 class="mb-3">📦 Report Summary</h5>
     <p><strong>Total Units Sold:</strong> <span id="units_sold"></span></p>
+      <p><strong>Total Purchase:</strong> ₹<span id="total_purchase"></span></p>
     <p><strong>Total Revenue:</strong> ₹<span id="total_revenue"></span></p>
     <p><strong>Net Profit:</strong> ₹<span id="net_profit"></span></p>
     <p><strong>Current In-house Stock:</strong> ₹<span id="stock_value"></span></p>
@@ -249,6 +250,7 @@
         document.getElementById('reportSummary').style.display = 'block';
         document.getElementById('units_sold').innerText = data.units_sold;
         document.getElementById('total_revenue').innerText = data.total_revenue;
+        document.getElementById('total_purchase').innerText = data.total_purchase;
         document.getElementById('net_profit').innerText = data.net_profit;
         document.getElementById('stock_value').innerText = data.stock_value;
         document.getElementById('salesList').innerHTML = data.sales_html;

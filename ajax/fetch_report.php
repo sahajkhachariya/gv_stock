@@ -45,6 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <th>Customer</th>
         <th>Phone</th>
         <th>Product</th>
+        <th>Product Code</th>
         <th>Qty</th>
         <th>Price/unit</th>
         <th>GST Type</th>
@@ -52,30 +53,78 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <th>Date</th>
       </tr>
     </thead><tbody>';
+// Grouped sales data by customer + created_at
+$sales_stmt = $conn->prepare("SELECT s.*, p.name, p.product_code FROM sales s JOIN products p ON s.product_id = p.id WHERE s.created_at BETWEEN ? AND ? ORDER BY s.created_at DESC");
+$sales_stmt->bind_param("ss", $from, $to);
+$sales_stmt->execute();
+$result = $sales_stmt->get_result();
 
-    $sales_stmt = $conn->prepare("SELECT s.*, p.name FROM sales s JOIN products p ON s.product_id = p.id WHERE s.created_at BETWEEN ? AND ? ORDER BY s.created_at DESC");
-    $sales_stmt->bind_param("ss", $from, $to);
-    $sales_stmt->execute();
-    $result = $sales_stmt->get_result();
+$grouped_sales = [];
 
-    if ($result->num_rows > 0) {
-        while ($sale = $result->fetch_assoc()) {
-            $sales_html .= '<tr>
-                <td>' . htmlspecialchars($sale['customer_name']) . '</td>
-                <td>' . htmlspecialchars($sale['customer_phone']) . '</td>
-                <td>' . htmlspecialchars($sale['name']) . '</td>
-                <td>' . $sale['quantity'] . '</td>
-                <td>₹' . number_format($sale['price_per_unit'], 2) . '</td>
-                <td>' . strtoupper($sale['gst_type']) . '</td>
-                <td>₹' . number_format($sale['total_price'], 2) . '</td>
-                <td>' . date('d-m-Y H:i', strtotime($sale['created_at'])) . '</td>
-              </tr>';
-        }
-    } else {
-        $sales_html .= '<tr><td colspan="8" class="text-center">No sales in selected date range</td></tr>';
+while ($sale = $result->fetch_assoc()) {
+    $key = $sale['customer_name'] . '_' . $sale['customer_phone'] . '_' . $sale['created_at'];
+
+    if (!isset($grouped_sales[$key])) {
+        $grouped_sales[$key] = [
+            'customer_name' => $sale['customer_name'],
+            'customer_phone' => $sale['customer_phone'],
+            'created_at' => $sale['created_at'],
+            'products' => []
+        ];
     }
 
-    $sales_html .= '</tbody></table></div>';
+    $grouped_sales[$key]['products'][] = [
+        'name' => $sale['name'],
+        'product_code' => $sale['product_code'],
+        'quantity' => $sale['quantity'],
+        'price_per_unit' => $sale['price_per_unit'],
+        'gst_type' => $sale['gst_type'],
+        'total_price' => $sale['total_price']
+    ];
+}
+
+$sales_html = '<div style="overflow-x:auto;"><table class="table-report">
+<thead class="table-light">
+  <tr>
+    <th>Customer</th>
+    <th>Phone</th>
+    <th>Product</th>
+    <th>Product Code</th>
+    <th>Qty</th>
+    <th>Price/unit</th>
+    <th>GST Type</th>
+    <th>Total</th>
+    <th>Date</th>
+  </tr>
+</thead><tbody>';
+
+if (!empty($grouped_sales)) {
+    foreach ($grouped_sales as $group) {
+        $products = array_column($group['products'], 'name');
+        $codes = array_column($group['products'], 'product_code');
+        $quantities = array_column($group['products'], 'quantity');
+        $prices = array_map(fn($p) => '₹' . number_format($p['price_per_unit'], 2), $group['products']);
+        $gst = array_column($group['products'], 'gst_type');
+        $totals = array_map(fn($p) => '₹' . number_format($p['total_price'], 2), $group['products']);
+
+        $sales_html .= '<tr>
+            <td>' . htmlspecialchars($group['customer_name']) . '</td>
+            <td>' . htmlspecialchars($group['customer_phone']) . '</td>
+            <td>' . implode("<br>", $products) . '</td>
+            <td>' . implode("<br>", $codes) . '</td>
+            <td>' . implode("<br>", $quantities) . '</td>
+            <td>' . implode("<br>", $prices) . '</td>
+            <td>' . implode("<br>", $gst) . '</td>
+            <td>' . implode("<br>", $totals) . '</td>
+            <td>' . date('d-m-Y H:i', strtotime($group['created_at'])) . '</td>
+        </tr>';
+    }
+} else {
+    $sales_html .= '<tr><td colspan="9" class="text-center">No sales in selected date range</td></tr>';
+}
+
+$sales_html .= '</tbody></table></div>';
+
 
     // Final Output
     echo json_encode([

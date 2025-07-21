@@ -4,28 +4,50 @@ require_once '../config/db.php';
 $db = new DB();
 $conn = $db->connect();
 
-$sales = [];
-$result = $conn->query("SELECT s.*, p.name, p.description FROM sales s JOIN products p ON s.product_id = p.id ORDER BY s.created_at DESC");
+$salesGrouped = [];
+
+$result = $conn->query("SELECT s.*, p.name AS product_name, p.description, p.product_code 
+                        FROM sales s 
+                        JOIN products p ON s.product_id = p.id 
+                        ORDER BY s.created_at DESC");
 
 if ($result && $result->num_rows > 0) {
     while ($row = $result->fetch_assoc()) {
-        $sales[] = $row;
+        $groupKey = $row['customer_name'] . '_' . $row['customer_phone'] . '_' . $row['created_at'];
+
+        if (!isset($salesGrouped[$groupKey])) {
+            $salesGrouped[$groupKey] = [
+                'customer_name' => $row['customer_name'],
+                'customer_phone' => $row['customer_phone'],
+                'products' => [],
+                'gst_type' => $row['gst_type'],
+                'total_price' => 0,
+                'created_at' => $row['created_at']
+            ];
+        }
+
+        $salesGrouped[$groupKey]['products'][] = [
+            'product_name' => $row['product_name'],
+            'product_code' => $row['product_code'],
+            'description' => $row['description'],
+            'quantity' => $row['quantity'],
+            'price_per_unit' => $row['price_per_unit']
+        ];
+
+        $salesGrouped[$groupKey]['total_price'] += $row['total_price'];
     }
 }
- 
- ?>
+?>
 
-<!-- Heading -->
-<!-- Page Container -->
+<!-- HTML Table -->
 <div class="page-wrapper">
   <div class="sales-container">
     <div class="back-button">
-  <a href="home.php">⬅</a>
-</div>
-    <!-- Heading -->
+      <a href="home.php">⬅</a>
+    </div>
+
     <h3 class="sales-heading">SALES</h3>
 
-    <!-- Table -->
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-hover">
         <thead class="table-light">
@@ -33,6 +55,7 @@ if ($result && $result->num_rows > 0) {
             <th>Customer</th>
             <th>Phone</th>
             <th>Product</th>
+            <th>Product Code</th>
             <th>Description</th>
             <th>Qty</th>
             <th>Price/unit</th>
@@ -42,17 +65,38 @@ if ($result && $result->num_rows > 0) {
           </tr>
         </thead>
         <tbody>
-          <?php foreach ($sales as $sale): ?>
+          <?php foreach ($salesGrouped as $entry): ?>
             <tr>
-              <td><?= htmlspecialchars($sale['customer_name']) ?></td>
-              <td><?= htmlspecialchars($sale['customer_phone']) ?></td>
-              <td><?= htmlspecialchars($sale['name']) ?></td>
-              <td><?= htmlspecialchars($sale['description']) ?></td>
-              <td><?= $sale['quantity'] ?></td>
-              <td>₹<?= number_format($sale['price_per_unit'], 2) ?></td>
-              <td><?= $sale['gst_type'] ?></td>
-              <td>₹<?= number_format($sale['total_price'], 2) ?></td>
-              <td><?= date('d-m-Y H:i', strtotime($sale['created_at'])) ?></td>
+              <td><?= htmlspecialchars($entry['customer_name']) ?></td>
+              <td><?= htmlspecialchars($entry['customer_phone']) ?></td>
+              <td>
+                <?php foreach ($entry['products'] as $p): ?>
+                  <?= htmlspecialchars($p['product_name']) ?><br>
+                <?php endforeach; ?>
+              </td>
+              <td>
+                <?php foreach ($entry['products'] as $p): ?>
+                  <?= htmlspecialchars($p['product_code']) ?><br>
+                <?php endforeach; ?>
+              </td>
+              <td>
+                <?php foreach ($entry['products'] as $p): ?>
+                  <?= htmlspecialchars($p['description']) ?><br>
+                <?php endforeach; ?>
+              </td>
+              <td>
+                <?php foreach ($entry['products'] as $p): ?>
+                  <?= $p['quantity'] ?><br>
+                <?php endforeach; ?>
+              </td>
+              <td>
+                <?php foreach ($entry['products'] as $p): ?>
+                  ₹<?= number_format($p['price_per_unit'], 2) ?><br>
+                <?php endforeach; ?>
+              </td>
+              <td><?= $entry['gst_type'] ?></td>
+              <td>₹<?= number_format($entry['total_price'], 2) ?></td>
+              <td><?= date('d-m-Y H:i', strtotime($entry['created_at'])) ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -61,35 +105,37 @@ if ($result && $result->num_rows > 0) {
   </div>
 </div>
 
+<!-- Keep your existing styles here (unchanged) -->
+
 
 <!-- Table Styling -->
 <style>
- /* Table Styling - Dark Blue & White Theme */
 body {
   background-color: #f1f6ff;
   margin: 0;
   font-family: 'Segoe UI', sans-serif;
 }
- .back-button {
-    position: absolute;
-    top: 20px;
-    left: 30px;
-    z-index: 10;
-  }
 
-  .back-button a {
-    background-color: #002c6f;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: background-color 0.3s ease;
-  }
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 30px;
+  z-index: 10;
+}
 
-  .back-button a:hover {
-    background-color: #002c6f;
-  }
+.back-button a {
+  background-color: #002c6f;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.back-button a:hover {
+  background-color: #002c6f;
+}
 
 .page-wrapper {
   display: flex;
@@ -118,7 +164,7 @@ body {
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  display: block; /* Ensure it stacks properly below heading */
+  display: block;
 }
 
 .table {
@@ -168,7 +214,6 @@ body {
   background-color: #eaf2ff;
   transition: 0.2s ease-in-out;
 }
-
 
 @media screen and (max-width: 768px) {
   .table th,
