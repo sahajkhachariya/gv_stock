@@ -147,6 +147,13 @@ foreach ($purchases as $p) {
       <div class="col-md-2 align-self-end">
         <button type="submit" class="btn btn-primary w-100">Filter</button>
       </div>
+      <div class="col-md-2 align-self-end">
+        <a 
+          href="purchase_report_pdf.php?from=<?= isset($_GET['from']) ? $_GET['from'] : '' ?>&to=<?= isset($_GET['to']) ? $_GET['to'] : '' ?>" 
+          class="btn btn-danger w-100"
+          target="_blank"
+        >Download PDF</a>
+      </div>
     </form>
 
     <div class="row g-3 mb-4">

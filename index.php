@@ -1,12 +1,12 @@
 <?php
 session_start();
-require_once '../config/db.php';
+require_once 'config/db.php';
 
 $db = new DB();
 $conn = $db->connect();
 
 if (isset($_SESSION['admin_logged_in'])) {
-    header("Location: home.php");
+    header("Location: views/home.php");
     exit();
 }
 
@@ -22,7 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows === 1) {
         $_SESSION['admin_logged_in'] = true;
         $_SESSION['admin_username'] = $username;
-        header("Location: home.php");
+        header("Location: views/home.php");
         exit();
     } else {
         $error = "Invalid username or password.";

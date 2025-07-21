@@ -4,24 +4,21 @@ require_once '../config/db.php';
 $db = new DB();
 $conn = $db->connect();
 
-// Optional: Normalize old GST types
-$conn->query("UPDATE sales SET gst_type = 'Inclusive (18%)' WHERE gst_type = 'inclusive'");
-$conn->query("UPDATE sales SET gst_type = 'Exclusive (18%)' WHERE gst_type = 'exclusive'");
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['customer_name'];
     $phone = $_POST['phone'];
-    $product_ids = $_POST['product_id'];     // array
-    $quantities = $_POST['quantity'];        // array
+    $product_ids = $_POST['product_id'];
+    $quantities = $_POST['quantity'];
 
-    $gst_type = ($_POST['gst_type'] === 'inclusive') ? 'Inclusive (18%)' : 'Exclusive (18%)';
+    $is_inclusive = ($_POST['gst_type'] === 'inclusive');
+    $gst_type = $is_inclusive ? 'Inclusive (18%)' : 'Exclusive (18%)';
     $gst_percent = 18;
+    $gst_percent_for_db = $is_inclusive ? 0 : $gst_percent;
     $discount_percent = isset($_POST['discount_percent']) ? floatval($_POST['discount_percent']) : 0;
 
     $base_prices = [];
     $total_price_after_gst = 0;
 
-    // Step 1: Calculate base prices and total price after GST
     for ($i = 0; $i < count($product_ids); $i++) {
         $product_id = $product_ids[$i];
         $quantity = $quantities[$i];
@@ -36,10 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $price_per_unit = $product['price'];
         $base_price = $price_per_unit * $quantity;
 
-        if ($gst_type === 'Inclusive (18%)') {
+        if ($is_inclusive) {
             $total = $base_price;
+            $gst_amount = ($base_price * $gst_percent) / (100 + $gst_percent);
         } else {
-            $total = $base_price + ($base_price * $gst_percent / 100);
+            $gst_amount = $base_price * ($gst_percent / 100);
+            $total = $base_price + $gst_amount;
         }
 
         $base_prices[] = [
@@ -47,16 +46,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'quantity' => $quantity,
             'price_per_unit' => $price_per_unit,
             'base_price' => $base_price,
-            'total' => $total
+            'total' => $total,
+            'gst_amount' => $gst_amount,
+            'gst_percent' => $gst_percent_for_db
         ];
 
         $total_price_after_gst += $total;
     }
 
-    // Step 2: Calculate total discount amount
     $total_discount_amount = ($discount_percent > 0) ? ($total_price_after_gst * ($discount_percent / 100)) : 0;
 
-    // Step 3: Insert each product as a separate sale entry with proportional discount
     foreach ($base_prices as $item) {
         $proportional_discount = ($total_price_after_gst > 0)
             ? ($item['total'] / $total_price_after_gst) * $total_discount_amount
@@ -64,25 +63,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $final_price = $item['total'] - $proportional_discount;
 
-        // GST amount calculation
-        if ($gst_type === 'Inclusive (18%)') {
-            $gst_amount = $item['base_price'] * ($gst_percent / (100 + $gst_percent));
-        } else {
-            $gst_amount = $item['base_price'] * ($gst_percent / 100);
-        }
-
-        // Insert into sales table
         $stmt = $conn->prepare("INSERT INTO sales (customer_name, customer_phone, product_id, quantity, price_per_unit, gst_type, gst_percent, gst_amount, total_price, discount_percent, discount_amount, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
         $stmt->bind_param(
-            "ssiiddidddd",
+            "ssiidsidddd",
             $name,
             $phone,
             $item['product_id'],
             $item['quantity'],
             $item['price_per_unit'],
             $gst_type,
-            $gst_percent,
-            $gst_amount,
+            $item['gst_percent'],
+            $item['gst_amount'],
             $final_price,
             $discount_percent,
             $proportional_discount
@@ -90,14 +81,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->execute();
         $stmt->close();
 
-        // Update product stock
         $stmt = $conn->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
         $stmt->bind_param("ii", $item['quantity'], $item['product_id']);
         $stmt->execute();
         $stmt->close();
     }
 
-    // Redirect to sales page
     header("Location: ../views/sales.php");
     exit;
 }
